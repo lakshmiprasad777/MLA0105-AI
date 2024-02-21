@@ -1,0 +1,52 @@
+def water_jug_problem(capacity_x, capacity_y, target):
+    state_visited = set()
+    stack = [(0, 0)]
+
+    while stack:
+        current_state = stack.pop()
+
+        x, y = current_state
+        if current_state in state_visited:
+            continue
+
+        state_visited.add(current_state)
+
+        if x == target or y == target:
+            print(f"Solution found: ({x}, {y})")
+            return
+
+        # Fill jug x
+        stack.append((capacity_x, y))
+
+        # Fill jug y
+        stack.append((x, capacity_y))
+
+        # Empty jug x
+        stack.append((0, y))
+
+        # Empty jug y
+        stack.append((x, 0))
+
+        # Pour water from x to y
+        pour_amount = min(x, capacity_y - y)
+        stack.append((x - pour_amount, y + pour_amount))
+
+        # Pour water from y to x
+        pour_amount = min(y, capacity_x - x)
+        stack.append((x + pour_amount, y - pour_amount))
+
+    print("No solution found.")
+
+def get_user_input():
+    try:
+        capacity_x = int(input("Enter the capacity of jug X: "))
+        capacity_y = int(input("Enter the capacity of jug Y: "))
+        target = int(input("Enter the target amount of water: "))
+        return capacity_x, capacity_y, target
+    except ValueError:
+        print("Invalid input. Please enter valid integers.")
+        return get_user_input()
+
+if __name__ == "__main__":
+    capacity_x, capacity_y, target = get_user_input()
+    water_jug_problem(capacity_x, capacity_y, target)
