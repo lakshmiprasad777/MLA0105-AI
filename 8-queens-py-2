@@ -1,0 +1,45 @@
+def is_safe(board, row, col):
+    # Check if there is a queen in the same column
+    for i in range(row):
+        if board[i] == col or \
+           board[i] - i == col - row or \
+           board[i] + i == col + row:
+            return False
+    return True
+
+def print_solution(board):
+    for row in board:
+        line = ['Q' if col == row else '.' for col in range(8)]
+        print(" ".join(line))
+    print()
+
+def solve_queens(board, row):
+    if row == 8:
+        print_solution(board)
+        return
+
+    for col in range(8):
+        if is_safe(board, row, col):
+            board[row] = col
+            solve_queens(board, row + 1)
+            board[row] = -1
+
+def get_user_input():
+    print("Enter the column number for each row (0 to 7):")
+    board = [-1] * 8
+    for i in range(8):
+        while True:
+            try:
+                col = int(input(f"Row {i + 1}: "))
+                if 0 <= col <= 7:
+                    board[i] = col
+                    break
+                else:
+                    print("Please enter a number between 0 and 7.")
+            except ValueError:
+                print("Invalid input. Please enter a number.")
+    return board
+
+if __name__ == "__main__":
+    user_input_board = get_user_input()
+    solve_queens(user_input_board, 0)
