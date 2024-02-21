@@ -1,0 +1,81 @@
+import heapq
+
+class PuzzleState:
+    def __init__(self, board, goal, moves=0):
+        self.board = board
+        self.goal = goal
+        self.moves = moves
+
+    def __lt__(self, other):
+        return (self.moves + self.manhattan()) < (other.moves + other.manhattan())
+
+    def __eq__(self, other):
+        return self.board == other.board
+
+    def __hash__(self):
+        return hash(str(self.board))
+
+    def manhattan(self):
+        distance = 0
+        for i in range(3):
+            for j in range(3):
+                if self.board[i][j] != 0:
+                    goal_pos = divmod(self.goal.index(self.board[i][j]), 3)
+                    distance += abs(i - goal_pos[0]) + abs(j - goal_pos[1])
+        return distance
+
+    def neighbors(self):
+        row, col = next((i, j) for i in range(3) for j in range(3) if self.board[i][j] == 0)
+        possible_moves = [(row + i, col + j) for i, j in [(-1, 0), (1, 0), (0, -1), (0, 1)]]
+        valid_moves = [(r, c) for r, c in possible_moves if 0 <= r < 3 and 0 <= c < 3]
+        neighbors = []
+        for r, c in valid_moves:
+            neighbor_board = [row[:] for row in self.board]
+            neighbor_board[row][col], neighbor_board[r][c] = neighbor_board[r][c], neighbor_board[row][col]
+            neighbors.append(PuzzleState(neighbor_board, self.goal, self.moves + 1))
+        return neighbors
+
+def a_star_search(initial_state, goal_state):
+    heap = [initial_state]
+    heapq.heapify(heap)
+    visited = set()
+
+    while heap:
+        current_state = heapq.heappop(heap)
+
+        if current_state.board == goal_state:
+            return current_state.moves, current_state.board
+
+        visited.add(current_state)
+
+        for neighbor in current_state.neighbors():
+            if neighbor not in visited:
+                heapq.heappush(heap, neighbor)
+
+    return None
+
+def get_user_input():
+    print("Enter the initial state of the 8-Puzzle (use 0 for the blank tile):")
+    initial_board = []
+    for _ in range(3):
+        row = list(map(int, input().split()))
+        initial_board.append(row)
+    return initial_board
+
+if __name__ == "__main__":
+    initial_board = get_user_input()
+    goal_board = [[1, 2, 3], [4, 5, 6], [7, 8, 0]]
+
+    initial_state = PuzzleState(initial_board, sum(initial_board, []))
+    goal_state = sum(goal_board, [])
+
+    result = a_star_search(initial_state, goal_state)
+
+    if result:
+        moves, final_board = result
+        print(f"Solved in {moves} moves.")
+        print("Final state:")
+        for row in final_board:
+            print(row)
+    else:
+        print("No solution found.")
