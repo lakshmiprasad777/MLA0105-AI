@@ -1,0 +1,44 @@
+def is_valid_assignment(assignment, words, result):
+    # Check if the assignment satisfies the equation
+    num1 = sum([assignment[ch] * 10**(len(word) - i - 1) for i, ch in enumerate(words[0])])
+    num2 = sum([assignment[ch] * 10**(len(word) - i - 1) for i, ch in enumerate(words[1])])
+    res = sum([assignment[ch] * 10**(len(result) - i - 1) for i, ch in enumerate(result)])
+
+    return num1 + num2 == res
+
+def is_valid_solution(assignment, words, result):
+    # Check if the assignment is valid for all words and result
+    for word in words + [result]:
+        if len(word) > 1 and assignment[word[0]] == 0:
+            return False  # Leading zeros are not allowed
+    return is_valid_assignment(assignment, words, result)
+
+def cryptarithmetic_solver(words, result):
+    unique_chars = set("".join(words) + result)
+    if len(unique_chars) > 10:
+        print("Invalid input. Too many unique characters.")
+        return
+
+    unique_chars = list(unique_chars)
+    digits = list(range(10))
+    for perm in itertools.permutations(digits, len(unique_chars)):
+        assignment = dict(zip(unique_chars, perm))
+        if is_valid_solution(assignment, words, result):
+            print("Solution found:")
+            for word in words + [result]:
+                print("".join(str(assignment[ch]) for ch in word), end="  ")
+            print()
+            return
+
+    print("No solution found.")
+
+if __name__ == "__main__":
+    import itertools
+
+    print("Enter the words of the cryptarithmetic problem (separated by space):")
+    words = input().split()
+
+    print("Enter the result word:")
+    result = input()
+
+    cryptarithmetic_solver(words, result)
